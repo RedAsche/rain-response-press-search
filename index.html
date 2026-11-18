@@ -49,6 +49,12 @@ th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:center}
 th{background:var(--accent-soft);font-weight:700}
 td.diff{background:var(--warn-soft);color:var(--warn);font-weight:700}
 .note{font-size:.84rem;color:var(--muted);margin-top:8px}
+.photo{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.photo img{display:block;width:100%;height:auto}
+.photo figcaption{padding:10px 14px;font-size:.84rem;color:var(--muted)}
+.photo a{color:var(--accent)}
+.scope label{cursor:pointer}
+code{font-size:.9em}
 .map{width:100%;height:360px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 footer{border-top:1px solid var(--line);padding:20px 0 40px;color:var(--muted);font-size:.84rem}
 footer a,.note a{color:var(--accent)}
@@ -59,16 +65,20 @@ footer a,.note a{color:var(--accent)}
   <div class="top">
     <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_South_Korea.svg?width=120" alt="대한민국 국기 (Wikimedia Commons)">
     <div><h1>5월 25일 호우 대응 — 3부처 보도자료 검색</h1>
-    <p class="sub">행정안전부 · 기상청 · 경찰청이 발표한 보도자료 3건을 부처별 카드로 보고, 제목·본문으로 검색합니다.</p></div>
+    <p class="sub">행정안전부 · 기상청 · 경찰청이 발표한 보도자료를 <code>보도자료데이터.json</code>에서 읽어 부처별 카드로 보여주고, 부처·제목·본문으로 검색합니다.</p></div>
   </div>
 </div></header>
 
 <main class="wrap">
   <div class="controls">
-    <input id="q" type="search" placeholder="키워드 검색 (예: 1,820 · 16:30 · 인명피해)" aria-label="키워드 검색">
+    <input id="q" type="search" placeholder="부처 또는 본문 키워드 (예: 경찰청 · 1,820 · 16:30 · 인명피해)" aria-label="키워드 검색">
     <div class="chips" id="chips" role="group" aria-label="부처 필터"></div>
   </div>
-  <div class="scope"><label><input type="checkbox" id="inTitle" checked> 제목</label><label><input type="checkbox" id="inBody" checked> 본문</label></div>
+  <div class="scope">검색 범위:
+    <label><input type="checkbox" id="inDept" checked> 부처</label>
+    <label><input type="checkbox" id="inTitle" checked> 제목</label>
+    <label><input type="checkbox" id="inBody" checked> 본문</label>
+    <span id="src"></span></div>
   <p id="count" aria-live="polite"></p>
   <div class="grid" id="grid"></div>
 
@@ -79,37 +89,31 @@ footer a,.note a{color:var(--accent)}
   </section>
 
   <section>
-    <h2 class="sec">외부 리소스 — 관할 지역 지도 (OpenStreetMap)</h2>
+    <h2 class="sec">외부 리소스 ① 이미지 — 호우 대응 점검회의</h2>
+    <figure class="photo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Gwangju_City_Attends_the_Meeting_to_Review_Response_to_Heavy_Rain_Hosted_by_the_President_20250718_%2801%29.jpg/960px-Gwangju_City_Attends_the_Meeting_to_Review_Response_to_Heavy_Rain_Hosted_by_the_President_20250718_%2801%29.jpg"
+        alt="광주광역시 재난안전대책본부 호우 대응 점검회의 (2025-07-18)" width="960" height="640">
+      <figcaption>광주광역시, 대통령 주재 호우 대응 점검회의 참석 (2025-07-18) — 출처: 광주광역시 · <a href="https://commons.wikimedia.org/wiki/File:Gwangju_City_Attends_the_Meeting_to_Review_Response_to_Heavy_Rain_Hosted_by_the_President_20250718_(01).jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · 공공누리 제1유형</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2 class="sec">외부 리소스 ② 지도 — 관할 지역 (OpenStreetMap)</h2>
     <iframe class="map" title="대한민국 지도 — OpenStreetMap"
       src="https://www.openstreetmap.org/export/embed.html?bbox=124.6%2C33.0%2C131.0%2C38.7&amp;layer=mapnik&amp;marker=36.5040%2C127.2650"></iframe>
     <p class="note">마커: 정부세종청사(행정안전부). 지도 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap 기여자</a> · <a href="https://www.openstreetmap.org/?mlat=36.5040&amp;mlon=127.2650#map=7/36.0/127.8" target="_blank" rel="noopener">큰 지도 보기</a></p>
   </section>
 </main>
 
-<footer><div class="wrap">자료: 3개_보도자료_묶음(가상) · 데이터 <a href="보도자료데이터.json">보도자료데이터.json</a> · 국기 이미지 Wikimedia Commons</div></footer>
+<footer><div class="wrap">자료: 3개_보도자료_묶음(가상) · 데이터 <a href="보도자료데이터.json">보도자료데이터.json</a> · 이미지 Wikimedia Commons</div></footer>
 
 <script>
-const DATA = [{"번호": "1", "부처": "행정안전부", "제목": "5월 25일 전국 호우 대응 — 중대본 1단계 가동", "본문": "# 5월 25일 전국 호우 대응 — 중대본 1단계 가동\n\n행정안전부(장관 윤호중)는 5월 25일 16:30 부로 중앙재난안전대책본부 1단계를 가동하고 전국 17개 광역지방정부를 대상으로 호우 대비 비상대응 체계를 확립했다.\n\n이번 대응에는 전국적으로 **1,820명**의 공무원·소방·경찰 인력이 동원됐다. 총 투입 예산은 **23억원**으로, 자연재난 대응을 위한 예비비에서 즉시 집행된다.\n\n중앙재난안전대책본부장은 16:30 가동 명령과 함께 17개 광역지방정부에 일제히 현장 점검 지시를 내렸다. 현재까지 잠정 집계된 인명피해는 **2명**으로, 경상자 위주로 경미한 수준이다.\n\n담당 부서: 자연재난대응과 (044-205-5230)\n\n\n---"}, {"번호": "2", "부처": "기상청", "제목": "5월 25일 전국 호우특보 발효 및 대응 동향", "본문": "# 5월 25일 전국 호우특보 발효 및 대응 동향\n\n기상청은 5월 25일 11:00부터 전국 17개 광역에 호우주의보를 단계적으로 발효했으며, 행정안전부와 협업해 **16:40** 부로 중앙재난안전대책본부 1단계 가동을 지원했다.\n\n기상청 IT인프라과는 재난문자 발송 자동화 시스템을 통해 행안부와 연계 대응을 진행했다. 본 대응에 동원된 인력은 행정안전부 집계 기준 **1,820명**이며, 행안부·기상청 합동 예산은 **25억원**이 집행됐다.\n\n전국 17개 광역지방정부에 호우주의보가 발효된 가운데, 잠정 인명피해는 **3명**이다.\n\n담당 부서: 기상청 IT인프라과 (02-2181-0700)\n\n\n---"}, {"번호": "3", "부처": "경찰청", "제목": "5월 25일 호우 대응 — 교통통제 현황", "본문": "# 5월 25일 호우 대응 — 교통통제 현황\n\n경찰청은 5월 25일 **16:30** 부로 가동된 행정안전부 중대본 1단계에 따라 전국 주요 도로 통제 체계를 가동했다. 통제 범위는 **16개** 광역을 대상으로 했다.\n\n전국 동원 경찰 인력은 **1,800명**이며, 경찰청 자체 예산 **23억원**을 비상 운영비에 즉시 투입했다.\n\n집계된 인명피해는 **3명**으로, 경찰청 119 합동 대응체계가 신속하게 가동된 결과다.\n\n담당 부서: 경찰청 교통안전관리과 (02-3150-2300)"}];
+const FALLBACK = [{"번호": "1", "부처": "행정안전부", "제목": "5월 25일 전국 호우 대응 — 중대본 1단계 가동", "본문": "# 5월 25일 전국 호우 대응 — 중대본 1단계 가동\n\n행정안전부(장관 윤호중)는 5월 25일 16:30 부로 중앙재난안전대책본부 1단계를 가동하고 전국 17개 광역지방정부를 대상으로 호우 대비 비상대응 체계를 확립했다.\n\n이번 대응에는 전국적으로 **1,820명**의 공무원·소방·경찰 인력이 동원됐다. 총 투입 예산은 **23억원**으로, 자연재난 대응을 위한 예비비에서 즉시 집행된다.\n\n중앙재난안전대책본부장은 16:30 가동 명령과 함께 17개 광역지방정부에 일제히 현장 점검 지시를 내렸다. 현재까지 잠정 집계된 인명피해는 **2명**으로, 경상자 위주로 경미한 수준이다.\n\n담당 부서: 자연재난대응과 (044-205-5230)\n\n\n---"}, {"번호": "2", "부처": "기상청", "제목": "5월 25일 전국 호우특보 발효 및 대응 동향", "본문": "# 5월 25일 전국 호우특보 발효 및 대응 동향\n\n기상청은 5월 25일 11:00부터 전국 17개 광역에 호우주의보를 단계적으로 발효했으며, 행정안전부와 협업해 **16:40** 부로 중앙재난안전대책본부 1단계 가동을 지원했다.\n\n기상청 IT인프라과는 재난문자 발송 자동화 시스템을 통해 행안부와 연계 대응을 진행했다. 본 대응에 동원된 인력은 행정안전부 집계 기준 **1,820명**이며, 행안부·기상청 합동 예산은 **25억원**이 집행됐다.\n\n전국 17개 광역지방정부에 호우주의보가 발효된 가운데, 잠정 인명피해는 **3명**이다.\n\n담당 부서: 기상청 IT인프라과 (02-2181-0700)\n\n\n---"}, {"번호": "3", "부처": "경찰청", "제목": "5월 25일 호우 대응 — 교통통제 현황", "본문": "# 5월 25일 호우 대응 — 교통통제 현황\n\n경찰청은 5월 25일 **16:30** 부로 가동된 행정안전부 중대본 1단계에 따라 전국 주요 도로 통제 체계를 가동했다. 통제 범위는 **16개** 광역을 대상으로 했다.\n\n전국 동원 경찰 인력은 **1,800명**이며, 경찰청 자체 예산 **23억원**을 비상 운영비에 즉시 투입했다.\n\n집계된 인명피해는 **3명**으로, 경찰청 119 합동 대응체계가 신속하게 가동된 결과다.\n\n담당 부서: 경찰청 교통안전관리과 (02-3150-2300)"}];   // JSON을 못 읽을 때(로컬 file:// 등) 쓰는 내장 사본
 const COLOR = {"행정안전부":"var(--mois)","기상청":"var(--kma)","경찰청":"var(--police)"};
 const $ = s => document.querySelector(s);
-const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const plain = s => s.replace(/\*\*/g, "");
-
-const docs = DATA.map(d => {
-  const lines = plain(d["본문"]).split("\n").map(l => l.trim()).filter(l => l && l !== "---" && !l.startsWith("# "));
-  const deptLine = lines.find(l => l.startsWith("담당 부서")) || "";
-  const paras = lines.filter(l => l !== deptLine);
-  return {...d, text: paras.join("\n\n"), summary: paras[0] || "", deptLine};
-});
-
-let dept = "전체";
-const chips = $("#chips");
-["전체", ...docs.map(d => d["부처"])].forEach(name => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.textContent = name; b.setAttribute("aria-pressed", name === dept);
-  b.onclick = () => { dept = name; chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b)); render(); };
-  chips.appendChild(b);
-});
+let docs = [], dept = "전체";
 
 function hl(text, q) {
   const t = esc(text);
@@ -119,44 +123,70 @@ function hl(text, q) {
 }
 
 function render() {
-  const q = $("#q").value.trim();
-  const inT = $("#inTitle").checked, inB = $("#inBody").checked;
-  const ql = q.toLowerCase();
-  const hit = docs.filter(d => (dept === "전체" || d["부처"] === dept) &&
-    (!q || (inT && d["제목"].toLowerCase().includes(ql)) || (inB && d.text.toLowerCase().includes(ql))));
+  const q = $("#q").value.trim(), ql = q.toLowerCase();
+  const inD = $("#inDept").checked, inT = $("#inTitle").checked, inB = $("#inBody").checked;
+  const hit = docs.filter(d => (dept === "전체" || d["부처"] === dept) && (!q ||
+    (inD && d["부처"].toLowerCase().includes(ql)) ||
+    (inT && d["제목"].toLowerCase().includes(ql)) ||
+    (inB && d.text.toLowerCase().includes(ql))));
   $("#count").textContent = `결과 ${hit.length}건` + (q ? ` — “${q}”` : "") + (dept !== "전체" ? ` · ${dept}` : "");
   $("#grid").innerHTML = hit.length ? hit.map(d => `
     <article class="card" style="--c:${COLOR[d["부처"]] || "var(--accent)"}">
-      <div class="meta"><span class="badge">${esc(d["부처"])}</span><span>보도자료 ${esc(d["번호"])}</span></div>
-      <h2>${hl(d["제목"], q)}</h2>
-      <p>${hl(d.summary, q)}</p>
-      <details${q && inB && d.text.toLowerCase().includes(ql) ? " open" : ""}><summary>본문 전체 보기</summary><div>${hl(d.text, q)}</div></details>
+      <div class="meta"><span class="badge">${hl(d["부처"], inD ? q : "")}</span><span>보도자료 ${esc(d["번호"])}</span></div>
+      <h2>${hl(d["제목"], inT ? q : "")}</h2>
+      <p>${hl(d.summary, inB ? q : "")}</p>
+      <details${q && inB && d.text.toLowerCase().includes(ql) ? " open" : ""}><summary>본문 전체 보기</summary><div>${hl(d.text, inB ? q : "")}</div></details>
       <div class="dept">${esc(d.deptLine)}</div>
     </article>`).join("") : `<div class="empty">“${esc(q)}” 검색 결과가 없습니다.</div>`;
 }
-["input", "change"].forEach(ev => { $("#q").addEventListener(ev, render); });
-$("#inTitle").onchange = render; $("#inBody").onchange = render;
-const q0 = new URLSearchParams(location.search).get("q");
-if (q0) $("#q").value = q0;
-render();
 
-// 5가지 사실 추출 (본문 기준)
-const first = (re, t) => { const m = t.match(re); return m ? m[1].replace(/,/g, "") : "—"; };
-const FACTS = {
-  "동원인원": t => first(/([\d,]{4,})명/, t),
-  "투입예산": t => first(/예산[^.]*?(\d+)억원/, t),
-  "발령시각": t => first(/(\d{1,2}:\d{2})\s*부로/, t),
-  "관할지역수": t => first(/(\d+)개\s*광역/, t),
-  "인명피해": t => first(/인명피해[^.]*?(\d+)명/, t),
-};
-const rows = Object.entries(FACTS).map(([k, f]) => {
-  const vals = docs.map(d => f(plain(d["본문"])));
-  const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
-  const major = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0];
-  return {k, vals, major};
-});
-$("#facts").innerHTML = `<thead><tr><th>사실</th><th>다수값</th>${docs.map(d => `<th>${esc(d["부처"])}</th>`).join("")}</tr></thead><tbody>` +
-  rows.map(r => `<tr><th>${r.k}</th><td>${r.major}</td>${r.vals.map(v => v === r.major ? `<td>${v}</td>` : `<td class="diff">${v}</td>`).join("")}</tr>`).join("") + "</tbody>";
+function renderFacts() {
+  const first = (re, t) => { const m = t.match(re); return m ? m[1].replace(/,/g, "") : "—"; };
+  const FACTS = {
+    "동원인원": t => first(/([\d,]{4,})명/, t),
+    "투입예산": t => first(/예산[^.]*?(\d+)억원/, t),
+    "발령시각": t => first(/(\d{1,2}:\d{2})\s*부로/, t),
+    "관할지역수": t => first(/(\d+)개\s*광역/, t),
+    "인명피해": t => first(/인명피해[^.]*?(\d+)명/, t),
+  };
+  const rows = Object.entries(FACTS).map(([k, f]) => {
+    const vals = docs.map(d => f(plain(d["본문"])));
+    const cnt = {}; vals.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+    return {k, vals, major: Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]};
+  });
+  $("#facts").innerHTML = `<thead><tr><th>사실</th><th>다수값</th>${docs.map(d => `<th>${esc(d["부처"])}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r => `<tr><th>${r.k}</th><td>${r.major}</td>${r.vals.map(v => v === r.major ? `<td>${v}</td>` : `<td class="diff">${v}</td>`).join("")}</tr>`).join("") + "</tbody>";
+}
+
+function start(data, source) {
+  docs = data.map(d => {
+    const lines = plain(d["본문"]).split("\n").map(l => l.trim()).filter(l => l && l !== "---" && !l.startsWith("# "));
+    const deptLine = lines.find(l => l.startsWith("담당 부서")) || "";
+    const paras = lines.filter(l => l !== deptLine);
+    return {...d, text: paras.join("\n\n"), summary: paras[0] || "", deptLine};
+  });
+  $("#src").textContent = `· 데이터: ${source} (${docs.length}건)`;
+  const chips = $("#chips");
+  chips.innerHTML = "";
+  ["전체", ...docs.map(d => d["부처"])].forEach(name => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = name; b.setAttribute("aria-pressed", name === dept);
+    b.onclick = () => { dept = name; chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b)); render(); };
+    chips.appendChild(b);
+  });
+  const q0 = new URLSearchParams(location.search).get("q");
+  if (q0) $("#q").value = q0;
+  render();
+  renderFacts();
+}
+
+$("#q").addEventListener("input", render);
+["#inDept", "#inTitle", "#inBody"].forEach(s => $(s).addEventListener("change", render));
+
+fetch("보도자료데이터.json", {cache: "no-store"})
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => start(data, "보도자료데이터.json"))
+  .catch(() => start(FALLBACK, "내장 사본"));
 </script>
 </body>
 </html>
