@@ -80,7 +80,7 @@ footer a,.note a{color:var(--accent)}
 
   <section>
     <h2 class="sec">외부 리소스 — 관할 지역 지도 (OpenStreetMap)</h2>
-    <iframe class="map" title="대한민국 지도 — OpenStreetMap" loading="lazy"
+    <iframe class="map" title="대한민국 지도 — OpenStreetMap"
       src="https://www.openstreetmap.org/export/embed.html?bbox=124.6%2C33.0%2C131.0%2C38.7&amp;layer=mapnik&amp;marker=36.5040%2C127.2650"></iframe>
     <p class="note">마커: 정부세종청사(행정안전부). 지도 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap 기여자</a> · <a href="https://www.openstreetmap.org/?mlat=36.5040&amp;mlon=127.2650#map=7/36.0/127.8" target="_blank" rel="noopener">큰 지도 보기</a></p>
   </section>
@@ -136,6 +136,8 @@ function render() {
 }
 ["input", "change"].forEach(ev => { $("#q").addEventListener(ev, render); });
 $("#inTitle").onchange = render; $("#inBody").onchange = render;
+const q0 = new URLSearchParams(location.search).get("q");
+if (q0) $("#q").value = q0;
 render();
 
 // 5가지 사실 추출 (본문 기준)
